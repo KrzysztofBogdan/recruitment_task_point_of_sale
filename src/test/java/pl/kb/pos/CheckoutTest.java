@@ -74,7 +74,7 @@ public class CheckoutTest {
 		checkout.onScan(correctBarcode);
 		checkout.onExit();
 		// then
-		assertThat(printer.printed.contains(Product.EMPTY)).isTrue();
+		assertThat(printer).contains(Product.EMPTY);
 	}
 
 }

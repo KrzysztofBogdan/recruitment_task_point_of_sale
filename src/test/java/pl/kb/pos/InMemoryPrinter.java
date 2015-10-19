@@ -1,6 +1,8 @@
 package pl.kb.pos;
 
-public class InMemoryPrinter implements Printer {
+import java.util.Iterator;
+
+public class InMemoryPrinter implements Printer, Iterable {
 
 	Products printed = null;
 
@@ -9,4 +11,8 @@ public class InMemoryPrinter implements Printer {
 		printed = products;
 	}
 
+	@Override
+	public Iterator iterator() {
+		return printed.getCollection().iterator();
+	}
 }
