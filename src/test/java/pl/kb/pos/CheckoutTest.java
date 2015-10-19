@@ -1,61 +1,55 @@
 package pl.kb.pos;
 
+import org.junit.Test;
+
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Test;
-
 public class CheckoutTest {
 
+	final Barcode correctBarcode = new Barcode("1010");
+
 	@Test
-	public void shouldDisplayInvalidBarcode() {
+	public void shouldDisplayInvalidBarcodeWhenBarcodeIsEmpty() {
 		// given
-		Barcode barcode = new Barcode("");
+		Barcode emptyBarcode = new Barcode("");
 		Display display = mock(Display.class);
 
 		Checkout checkout = new Checkout(display, null, null);
-		BarcodeScanner barcodeScanner = new BarcodeScanner();
-		barcodeScanner.setBarcodeScannerListener(checkout);
 		// when
-		barcodeScanner.scanned(barcode);
+		checkout.onScan(emptyBarcode);
 		// then
-		verify(display).displayInvalidBarcode();
+		verify(display).showInvalidBarcode();
 	}
 
 	@Test
-	public void shouldDisplayProductNotFound() {
+	public void shouldDisplayProductNotFoundWhenBarcodeIsNotInDatabase() {
 		// given
-		Barcode barcode = new Barcode("1010");
+		Barcode barcodeNotInDatabase = correctBarcode;
 		Display display = mock(Display.class);
-		ProductDao productDao = given(mock(ProductDao.class).findProductByBarcode(barcode)).willReturn(null).getMock();
+		ProductDao productDao = new SingleProductDao(null);
 
-		Checkout checkout = new Checkout(display, productDao, null);
-		BarcodeScanner barcodeScanner = new BarcodeScanner();
-		barcodeScanner.setBarcodeScannerListener(checkout);
+		Checkout checkout = new Checkout(display, null, productDao);
 		// when
-		barcodeScanner.scanned(barcode);
+		checkout.onScan(barcodeNotInDatabase);
 		// then
-		verify(display).displayProductNotFound();
+		verify(display).showProductNotFound();
 	}
 
 	@Test
-	public void shouldDisplayProductData() {
+	public void shouldDisplayProductInfoByBarcode() {
 		// given
-		Barcode barcode = new Barcode("1010");
+		Barcode barcode = correctBarcode;
 		Display display = mock(Display.class);
-		Product product = new Product();
-		ProductDao productDao = given(mock(ProductDao.class).findProductByBarcode(barcode)).willReturn(product)
-				.getMock();
+		ProductDao productDao = new SingleProductDao(Product.EMPTY);
 
-		Checkout checkout = new Checkout(display, productDao, null);
-		BarcodeScanner barcodeScanner = new BarcodeScanner();
-		barcodeScanner.setBarcodeScannerListener(checkout);
+		Checkout checkout = new Checkout(display, null, productDao);
 		// when
-		barcodeScanner.scanned(barcode);
+		checkout.onScan(barcode);
 		// then
-		verify(display).displayPoductInfo(product);
+		verify(display).showPoductInfo(Product.EMPTY);
 	}
 
 	@Test
@@ -63,41 +57,24 @@ public class CheckoutTest {
 		// given
 		Printer printer = mock(Printer.class);
 		Display display = mock(Display.class);
-		Checkout checkout = new Checkout(display, null, printer);
+		Checkout checkout = new Checkout(display, printer, null);
 		// when
 		checkout.onExit();
 		// then
-		verify(display).displayTotalPrice(new Products());
+		verify(display).showTotalPrice(any(Products.class));
 	}
 
 	@Test
-	public void shouldPrintProducts() {
+	public void shouldPrintProductsOnExit() {
 		// given
-		Printer printer = mock(Printer.class);
-		ProductDao productDao = mock(ProductDao.class);
-		Checkout checkout = new Checkout(mock(Display.class), productDao, printer);
+		InMemoryPrinter printer = new InMemoryPrinter();
+		ProductDao productDao = new SingleProductDao(Product.EMPTY);
+		Checkout checkout = new Checkout(mock(Display.class), printer, productDao);
 		// when
-		checkout.onScan(new Barcode("01010"));
+		checkout.onScan(correctBarcode);
 		checkout.onExit();
 		// then
-		verify(printer).print(new Products());
-	}
-
-	@Test
-	public void shouldCollectProductsOnScan() {
-		// given
-		Barcode barcode = new Barcode("1010");
-		Product product = new Product();
-		ProductDao productDao = given(mock(ProductDao.class).findProductByBarcode(barcode)).willReturn(product)
-				.getMock();
-
-		Checkout checkout = new Checkout(mock(Display.class), productDao, null);
-		BarcodeScanner barcodeScanner = new BarcodeScanner();
-		barcodeScanner.setBarcodeScannerListener(checkout);
-		// when
-		barcodeScanner.scanned(barcode);
-		// then
-		assertThat(checkout.contains(product)).isTrue();
+		assertThat(printer.printed.contains(Product.EMPTY)).isTrue();
 	}
 
 }

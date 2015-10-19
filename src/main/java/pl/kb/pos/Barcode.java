@@ -1,13 +1,13 @@
 package pl.kb.pos;
 
 class Barcode {
-	final String barcode;
+	final String value;
 
-	Barcode(String barcode) {
-		this.barcode = barcode;
+	Barcode(String value) {
+		this.value = value;
 	}
 
 	boolean isEmpty() {
-		return barcode.isEmpty();
+		return value.isEmpty();
 	}
 }

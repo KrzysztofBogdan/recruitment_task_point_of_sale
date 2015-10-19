@@ -1,11 +1,11 @@
 package pl.kb.pos;
 
 interface Display {
-	void displayProductNotFound();
+	void showProductNotFound();
 
-	void displayInvalidBarcode();
+	void showInvalidBarcode();
 
-	void displayPoductInfo(Product product);
+	void showPoductInfo(Product product);
 
-	void displayTotalPrice(Products products);
+	void showTotalPrice(Products products);
 }

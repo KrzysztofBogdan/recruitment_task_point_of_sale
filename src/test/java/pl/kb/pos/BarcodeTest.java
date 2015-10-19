@@ -1,13 +1,13 @@
 package pl.kb.pos;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class BarcodeTest {
 
 	@Test
-	public void shouldReturnThatBarcodeIsEmpty() {
+	public void shouldCheckThatBarcodeIsEmpty() {
 		// given
 		Barcode barcode = new Barcode("");
 		// when
@@ -17,7 +17,7 @@ public class BarcodeTest {
 	}
 
 	@Test
-	public void shouldReturnThatBarcodeIsNotEmpty() {
+	public void shouldCheckThatBarcodeIsNotEmpty() {
 		// given
 		Barcode barcode = new Barcode("1010");
 		// when
